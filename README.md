@@ -2,14 +2,14 @@
 <a href="https://dscommunity.in">
 	<img src="https://github.com/Data-Science-Community-SRM/template/blob/master/Header.png?raw=true" width=80%/>
 </a>
-	<h2 align="center"> < Insert Project Title Here > </h2>
-	<h4 align="center"> < Insert Project Description Here > <h4>
+	<h2 align="center"> Face Mask Detection </h2>
+	<h4 align="center"> This project aims to identify and perform binary classification to sort if a person is wearing a face mask or not. We have built a model that uses MobileNetV2 to do the same, which is a popular library when it comes to identifying similar features. <h4>
 </p>
 
 ---
 [![DOCS](https://img.shields.io/badge/Documentation-see%20docs-green?style=flat-square&logo=appveyor)](INSERT_LINK_FOR_DOCS_HERE) 
   [![UI ](https://img.shields.io/badge/User%20Interface-Link%20to%20UI-orange?style=flat-square&logo=appveyor)](INSERT_UI_LINK_HERE)
-
+	
 ## Preview
 - Add pictures or important highlights from the Project (if any)
 ## Functionalities
