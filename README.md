@@ -13,10 +13,9 @@
 ## Preview
 - Add pictures or important highlights from the Project (if any)
 ## Functionalities
-- [ ]  < insert functionality >
-- [ ]  < insert functionality >
-- [ ]  < insert functionality >
-- [ ]  < insert functionality >
+1. This prototype system allows for the facial recognition of people with and without a mask and could be used as a low computational consumption proposal for personnel access control. 
+2. It can be implemented on to a webpage or an application for publishing and public use.
+3. It could also be worked upon to perform various other functions that require image processing and facial recognition, for example, it is possible to know their identity. This is if the face is within the selected database. 
 
 <br>
 
@@ -24,18 +23,183 @@
 ## Instructions to run
 
 * Pre-requisites:
-	-  < insert pre-requisite >
-	-  < insert pre-requisite >
+	-  pip install tensorflow
+	-  pip install sklearn
+	-  pip install imutils
+	-  pip install matplotlib
+	-  pip install numpy
+	-  pip install os
+	-  pip install cv2
+	-  import haarcascade_frontalface_default.xml for CascadeClassifier
 
-* < directions to install > 
+* Training the model 
 ```bash
-< insert code >
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.applications import MobileNetV2
+from tensorflow.keras.layers import AveragePooling2D
+from tensorflow.keras.layers import Dropout
+from tensorflow.keras.layers import Flatten
+from tensorflow.keras.layers import Dense
+from tensorflow.keras.layers import Input
+from tensorflow.keras.models import Model
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
+from tensorflow.keras.preprocessing.image import img_to_array
+from tensorflow.keras.preprocessing.image import load_img
+from tensorflow.keras.utils import to_categorical
+from sklearn.preprocessing import LabelBinarizer
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+from imutils import paths
+import matplotlib.pyplot as plt
+import numpy as np
+import os
+
+INIT_LR = 1e-4
+EPOCHS = 20
+BS = 32
+
+DIRECTORY = r"C:\Users\DELL\Desktop\facemask\dataset"
+CATEGORIES = ["mask", "no_mask"]
+
+print("[INFO] loading images...")
+
+data = []
+labels = []
+
+for category in CATEGORIES:
+    path = os.path.join(DIRECTORY, category)
+    for img in os.listdir(path):
+    	img_path = os.path.join(path, img)
+    	image = load_img(img_path, target_size=(224, 224))
+    	image = img_to_array(image)
+    	image = preprocess_input(image)
+
+    	data.append(image)
+    	labels.append(category)
+
+lb = LabelBinarizer()
+labels = lb.fit_transform(labels)
+labels = to_categorical(labels)
+
+data = np.array(data, dtype="float32")
+labels = np.array(labels)
+
+(trainX, testX, trainY, testY) = train_test_split(data, labels,
+	test_size=0.20, stratify=labels, random_state=42)
+
+aug = ImageDataGenerator(
+	rotation_range=20,
+	zoom_range=0.15,
+	width_shift_range=0.2,
+	height_shift_range=0.2,
+	shear_range=0.15,
+	horizontal_flip=True,
+	fill_mode="nearest")
+
+baseModel = MobileNetV2(weights="imagenet", include_top=False,
+	input_tensor=Input(shape=(224, 224, 3)))
+
+headModel = baseModel.output
+headModel = AveragePooling2D(pool_size=(7, 7))(headModel)
+headModel = Flatten(name="flatten")(headModel)
+headModel = Dense(128, activation="relu")(headModel)
+headModel = Dropout(0.5)(headModel)
+headModel = Dense(2, activation="softmax")(headModel)
+
+model = Model(inputs=baseModel.input, outputs=headModel)
+
+for layer in baseModel.layers:
+	layer.trainable = False
+
+print("[INFO] compiling model...")
+opt = Adam(lr=INIT_LR, decay=INIT_LR / EPOCHS)
+model.compile(loss="binary_crossentropy", optimizer=opt,
+	metrics=["accuracy"])
+
+print("[INFO] training head...")
+H = model.fit(
+	aug.flow(trainX, trainY, batch_size=BS),
+	steps_per_epoch=len(trainX) // BS,
+	validation_data=(testX, testY),
+	validation_steps=len(testX) // BS,
+	epochs=EPOCHS)
+
+print("[INFO] evaluating network...")
+predIdxs = model.predict(testX, batch_size=BS)
+
+# for each image in the testing set we need to find the index of the
+# label with corresponding largest predicted probability
+predIdxs = np.argmax(predIdxs, axis=1)
+
+# show a nicely formatted classification report
+print(classification_report(testY.argmax(axis=1), predIdxs,
+	target_names=lb.classes_))
+
+# serialize the model to disk
+print("[INFO] saving mask detector model...")
+model.save("mask_detector.model", save_format="h5")
+
+# plot the training loss and accuracy
+N = EPOCHS
+plt.style.use("ggplot")
+plt.figure()
+plt.plot(np.arange(0, N), H.history["loss"], label="train_loss")
+plt.plot(np.arange(0, N), H.history["val_loss"], label="val_loss")
+plt.plot(np.arange(0, N), H.history["accuracy"], label="train_acc")
+plt.plot(np.arange(0, N), H.history["val_accuracy"], label="val_acc")
+plt.title("Training Loss and Accuracy")
+plt.xlabel("Epoch #")
+plt.ylabel("Loss/Accuracy")
+plt.legend(loc="lower left")
+plt.savefig("plot.png")
 ```
 
-* < directions to execute >
+* Model Execution
 
 ```bash
-< insert code >
+from keras.models import load_model
+import cv2
+import numpy as np
+
+model = load_model("C:/Users/DELL/Desktop/facemask/dataset/mask_detector.model")
+
+face_clsfr=cv2.CascadeClassifier(cv2.data.haarcascades+"haarcascade_frontalface_default.xml")
+
+source=cv2.VideoCapture(0)
+
+labels_dict={0:'MASK',1:'NO MASK'}
+color_dict={0:(0,255,0),1:(0,0,255)}
+
+while(True):
+
+    ret,img=source.read()
+    gray=cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+    faces=face_clsfr.detectMultiScale(gray,1.3,5)  
+
+    for (x,y,w,h) in faces:
+    
+        face_img=gray[y:y+w,x:x+w]
+        resized=cv2.resize(face_img,(672,672))
+        normalized=resized/255.0
+        reshaped=np.reshape(normalized,(3,224,224,3))
+        result=model.predict(reshaped)
+
+        label=np.argmax(result,axis=1)[0]
+      
+        cv2.rectangle(img,(x,y),(x+w,y+h),color_dict[label],2)
+        cv2.rectangle(img,(x,y-40),(x+w,y),color_dict[label],-1)
+        cv2.putText(img, labels_dict[label], (x, y-10),cv2.FONT_HERSHEY_SIMPLEX,0.8,(255,255,255),2)
+        
+        
+    cv2.imshow('LIVE',img)
+    key=cv2.waitKey(1)
+    
+    if(key==27):
+        break
+        
+cv2.destroyAllWindows()
+source.release()
 ```
 
 ## Contributors
@@ -46,7 +210,7 @@
 
 <td>
 
-John Doe
+Yashowardhan Samdhani
 
 <p align="center">
 <img src = "https://github.com/Data-Science-Community-SRM/template/blob/master/logo-light.png?raw=true"  height="120" alt="Your Name Here (Insert Your Image Link In Src">
@@ -62,7 +226,7 @@ John Doe
 
 <td>
 
-John Doe
+Daketi Yathin
 
 <p align="center">
 <img src = "https://github.com/Data-Science-Community-SRM/template/blob/master/logo-light.png?raw=true"  height="120" alt="Your Name Here (Insert Your Image Link In Src">
@@ -79,7 +243,7 @@ John Doe
 
 <td>
 
-John Doe
+Harikrishnaa
 
 <p align="center">
 <img src = "https://github.com/Data-Science-Community-SRM/template/blob/master/logo-light.png?raw=true"  height="120" alt="Your Name Here (Insert Your Image Link In Src">
