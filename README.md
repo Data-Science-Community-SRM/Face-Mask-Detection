@@ -259,7 +259,7 @@ Yashowardhan Samdhani
 Daketi Yatin
 
 <p align="center">
-<img src = "https://github.com/Data-Science-Community-SRM/template/blob/master/logo-light.png?raw=true"  height="120" alt="Your Name Here (Insert Your Image Link In Src">
+<img src = "https://github.com/Data-Science-Community-SRM/template/blob/master/logo-light.png?raw=true"  height="120" alt="Daketi Yatin (Insert Your Image Link In Src">
 </p>
 <p align="center">
 <a href = "https://github.com/yatin2901"><img src = "http://www.iconninja.com/files/241/825/211/round-collaboration-social-github-code-circle-network-icon.svg" width="36" height = "36"/></a>
@@ -276,7 +276,7 @@ Daketi Yatin
 Harikrishnaa
 
 <p align="center">
-<img src = "https://github.com/Data-Science-Community-SRM/template/blob/master/logo-light.png?raw=true"  height="120" alt="Your Name Here (Insert Your Image Link In Src">
+<img src = "https://github.com/Data-Science-Community-SRM/template/blob/master/logo-light.png?raw=true"  height="120" alt="Harikrishnaa (Insert Your Image Link In Src">
 </p>
 <p align="center">
 <a href = "https://github.com/Harikrishnaa3131"><img src = "http://www.iconninja.com/files/241/825/211/round-collaboration-social-github-code-circle-network-icon.svg" width="36" height = "36"/></a>
