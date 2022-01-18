@@ -243,7 +243,7 @@ source.release()
 Yashowardhan Samdhani
 
 <p align="center">
-<img src = "https://github.com/Data-Science-Community-SRM/Face-Mask-Detection/blob/master/Yashowardhan%20Samdhani.png?raw=true"  height="120" alt="Yashowardhan Samdhani">
+<img src = "https://github.com/Data-Science-Community-SRM/Face-Mask-Detection/blob/master/Yashowardhan%20Samdhani.jpg"  height="120" alt="Yashowardhan Samdhani">
 </p>
 <p align="center">
 <a href = "https://github.com/YashowardhanSamdhani"><img src = "http://www.iconninja.com/files/241/825/211/round-collaboration-social-github-code-circle-network-icon.svg" width="36" height = "36"/></a>
